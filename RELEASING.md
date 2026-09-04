@@ -88,6 +88,11 @@ SSH and deploy keys do not work from the bridge shell: it has no DNS of its own,
 2. **Git identity.** The Linux side does not see Windows' global git config. The repo's own
    config is set to `Filmjolk <filmjolk_1@hotmail.com>` to match the other Embody Games
    repos. Check it is still there before committing.
+3. **A tag pushed in the same push that adds the workflow does not fire it.** This only bit
+   the first commit, and the fix was to delete the remote tag and push it again:
+   `git push $URL :refs/tags/vX.Y.Z` then `git push $URL refs/tags/vX.Y.Z`. Normal releases
+   push a tag onto a branch that already carries the workflow, so they trigger fine. If a
+   release ever seems to have gone nowhere, check `/actions` before assuming the push failed.
 
 ## Verifying
 
