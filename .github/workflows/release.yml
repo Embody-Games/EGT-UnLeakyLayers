@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run checks
+        run: node scripts/check.mjs
+
+      - name: Tag must agree with PLUGIN_VERSION
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          plugin=$(node -p "require('fs').readFileSync('layered_lock_alpha.js','utf8').match(/^const PLUGIN_VERSION = '([^']+)';/m)[1]")
+          if [ "$tag" != "$plugin" ]; then
+            echo "tag v$tag but the plugin says $plugin"
+            exit 1
+          fi
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+        id: version
+
+      - name: Build release notes
+        run: node scripts/changelog.mjs "${{ steps.version.outputs.version }}" > release-notes.md
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: |
+            layered_lock_alpha.js
+            changelog.json

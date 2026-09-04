@@ -1,0 +1,8 @@
+node_modules/
+*.log
+
+# The push credential lives in .git/egt-push-token, which git never tracks.
+# Anything that looks like a token in the working tree is a mistake:
+*token*.txt
+*.pat
+.env
