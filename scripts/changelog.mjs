@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /**
- * changelog.json is the single source. Blockbench's Changelog tab, CHANGELOG.md and
- * the GitHub release body all render from it, so the text is never written twice.
+ * changelog.json is the single source. Blockbench's Changelog tab, CHANGELOG.md,
+ * the GitHub release body and the Discord post all render from it, so the text is
+ * never written twice.
  *
- *   node scripts/changelog.mjs            regenerate CHANGELOG.md
- *   node scripts/changelog.mjs 1.1.0      print one version's notes (release body)
+ *   node scripts/changelog.mjs                  regenerate CHANGELOG.md
+ *   node scripts/changelog.mjs 1.1.0            print one version's notes
+ *   node scripts/changelog.mjs 1.1.0 --title-only   print just that version's title
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -18,21 +20,23 @@ export const semverDesc = (a, b) => {
 	return pb[0] - pa[0] || pb[1] - pa[1] || pb[2] - pa[2];
 };
 
+// Early entries used the bare version as the title. Repeating it reads badly in a
+// release heading, so treat that case as having no title at all.
+export const titleOf = (version, entry) =>
+	entry.title && entry.title !== version ? entry.title : '';
+
 export function renderOne(version, entry) {
-	return [
-		...entry.categories.flatMap(category => [
-			`### ${category.title}`,
-			'',
-			...category.list.map(line => `- ${line}`),
-			'',
-		]),
-	].join('\n').trimEnd();
+	return entry.categories
+		.flatMap((category) => [`### ${category.title}`, '', ...category.list.map((line) => `- ${line}`), ''])
+		.join('\n')
+		.trimEnd();
 }
 
 export function renderAll(changelog = load()) {
-	const body = Object.keys(changelog).sort(semverDesc).flatMap(version => {
+	const body = Object.keys(changelog).sort(semverDesc).flatMap((version) => {
 		const entry = changelog[version];
-		return [`## v${version} - ${entry.title}`, '', `_${entry.date}_`, '', renderOne(version, entry), ''];
+		const title = titleOf(version, entry);
+		return [`## v${version}${title ? ` - ${title}` : ''}`, '', `_${entry.date}_`, '', renderOne(version, entry), ''];
 	});
 	return [
 		'# Changelog',
@@ -43,21 +47,25 @@ export function renderAll(changelog = load()) {
 	].join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }
 
-export function writeMarkdown(changelog) {
+export function writeMarkdown(changelog = load()) {
 	writeFileSync(join(root, 'CHANGELOG.md'), renderAll(changelog), 'utf8');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	const version = process.argv[2];
-	if (version) {
+	const args = process.argv.slice(2);
+	const titleOnly = args.includes('--title-only');
+	const version = args.find((a) => !a.startsWith('-'));
+
+	if (!version) {
+		writeMarkdown();
+		console.log('CHANGELOG.md regenerated');
+	} else {
 		const changelog = load();
-		if (!changelog[version]) {
+		const entry = changelog[version];
+		if (!entry) {
 			console.error(`no changelog.json entry for ${version}`);
 			process.exit(1);
 		}
-		process.stdout.write(renderOne(version, changelog[version]) + '\n');
-	} else {
-		writeMarkdown();
-		console.log('CHANGELOG.md regenerated');
+		process.stdout.write((titleOnly ? titleOf(version, entry) : renderOne(version, entry)) + '\n');
 	}
 }

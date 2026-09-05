@@ -1,9 +1,10 @@
-name: Checks
+name: checks
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   check:
@@ -13,4 +14,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node scripts/check.mjs
+      - run: npm install --no-audit --no-fund
+      - run: npm test --if-present
