@@ -1,6 +1,6 @@
 {
   "name": "egt-unleakylayers",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Layered Lock Alpha - a Blockbench plugin that makes Lock Alpha Channel respect every layer",
   "type": "module",

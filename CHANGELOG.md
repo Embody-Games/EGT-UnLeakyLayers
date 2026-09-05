@@ -2,6 +2,15 @@
 
 Generated from `changelog.json` by `scripts/changelog.mjs`. Edit that file, not this one.
 
+## v1.2.0 - Renamed to UnLeakyLayers
+
+_2026-09-05_
+
+### Changed
+
+- The plugin file is now unleakylayers.js and its id is 'unleakylayers', matching the repo and the other Embody Games plugins. Blockbench treats this as a different plugin, so remove the old Layered Lock Alpha entry and load the new file once. Painting behaviour is unchanged.
+- The direct download link is now https://raw.githubusercontent.com/Embody-Games/EGT-UnLeakyLayers/main/unleakylayers.js
+
 ## v1.1.0 - Layer-aware Lock Alpha
 
 _2026-09-04_
