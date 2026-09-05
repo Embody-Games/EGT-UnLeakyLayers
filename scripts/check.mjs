@@ -83,6 +83,13 @@ check('plugin id matches the filename', () => {
 	assert(id === expected, `PLUGIN_ID is '${id}' but the file is ${PLUGIN_FILE}, so Blockbench will refuse to load it`);
 });
 
+check('plugin title is the current name', () => {
+	// The display name in Blockbench's plugin list. It drifted behind a rename once.
+	const title = (source.match(/^\ttitle: '([^']+)',/m) || [])[1];
+	assert(title === 'UnLeaky Layers', `title is '${title}', expected 'UnLeaky Layers'`);
+	assert(!/Layered Lock Alpha/.test(source), 'the old plugin name is still in the source');
+});
+
 check('onload has a matching onunload', () => {
 	assert(/\bonload\(\)/.test(source) && /\bonunload\(\)/.test(source), 'a plugin without onunload cannot be disabled cleanly');
 });

@@ -1,5 +1,5 @@
 /**
- * Layered Lock Alpha
+ * UnLeaky Layers
  *
  * Blockbench's built-in "Lock Alpha Channel" only looks at the alpha of the layer
  * you are currently painting on. On a fresh (empty) layer above your artwork that
@@ -45,7 +45,7 @@
 // Must match the filename: unleakylayers.js
 const PLUGIN_ID = 'unleakylayers';
 const PLUGIN_VERSION = '1.2.0';   // single source of truth, bumped by scripts/release.mjs
-const LOG = '[Layered Lock Alpha]';
+const LOG = '[UnLeaky Layers]';
 
 const MUTATORS = ['fill', 'fillRect', 'stroke', 'strokeRect', 'clearRect', 'drawImage'];
 
@@ -327,7 +327,7 @@ function shouldHandle(texture) {
 // ---------------------------------------------------------------- plugin
 
 BBPlugin.register(PLUGIN_ID, {
-	title: 'Layered Lock Alpha',
+	title: 'UnLeaky Layers',
 	icon: 'fas.fa-chess-board',
 	author: 'quinten.bench',
 	description: 'Makes Lock Alpha Channel respect every layer, so a pixel is only locked when it is transparent on all of them. Lets you paint on empty layers above your artwork with Lock Alpha enabled.',
@@ -341,7 +341,7 @@ BBPlugin.register(PLUGIN_ID, {
 		added_settings.push(new Setting('lla_enabled', {
 			category: 'paint',
 			value: true,
-			name: 'Layer-aware Lock Alpha',
+			name: 'UnLeaky Layers',
 			description: 'Lock Alpha Channel locks a pixel only when it is fully transparent on every layer, instead of only on the layer being painted.'
 		}));
 		added_settings.push(new Setting('lla_clamp', {

@@ -1,4 +1,4 @@
-# Releasing Layered Lock Alpha
+# Releasing UnLeaky Layers
 
 Repo: `Embody-Games/EGT-UnLeakyLayers`, public.
 Working copy on David's machine at

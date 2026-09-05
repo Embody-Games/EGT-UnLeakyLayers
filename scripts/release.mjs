@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Cut a release of the Layered Lock Alpha plugin.
+ * Cut a release of the UnLeaky Layers plugin.
  *
  *   npm run release -- <major|minor|patch> --title "Short release name" \
  *     --added "..." --changed "..." --fixed "..."

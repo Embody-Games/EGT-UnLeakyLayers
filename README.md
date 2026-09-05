@@ -1,4 +1,4 @@
-# Layered Lock Alpha
+# UnLeaky Layers
 
 A Blockbench plugin that makes **Lock Alpha Channel** respect every layer in a texture
 instead of only the one you are painting on.
@@ -35,7 +35,7 @@ Both live under **Settings > Paint**.
 
 | Setting | What it does |
 | --- | --- |
-| Layer-aware Lock Alpha | Turn the whole behaviour off and fall back to vanilla Lock Alpha. |
+| UnLeaky Layers | Turn the whole behaviour off and fall back to vanilla Lock Alpha. |
 | Clamp alpha to the combined mask | Cap painted alpha at the combined alpha rather than letting a stroke exceed it. |
 
 ## Repo layout
