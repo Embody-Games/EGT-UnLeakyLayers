@@ -33,11 +33,17 @@
  *
  * Step 3 runs on the small region passed to putImageData for brush-like tools, and on
  * the whole layer for the tools that redraw wholesale (fill / shape / gradient).
+ *
+ * NOTE ON THE FILENAME: Blockbench derives a file-loaded plugin's id from its filename
+ * (pathToName in plugin_loader.ts) and matches it against the id passed to
+ * BBPlugin.register below. Rename this file and it will refuse to load with
+ * "could not load plugin". Keep the two in sync.
  */
 
 (function () {
 
-const PLUGIN_ID = 'layered_lock_alpha';
+// Must match the filename: unleakylayers.js
+const PLUGIN_ID = 'unleakylayers';
 const PLUGIN_VERSION = '1.1.0';   // single source of truth, bumped by scripts/release.mjs
 const LOG = '[Layered Lock Alpha]';
 

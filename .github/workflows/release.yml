@@ -23,7 +23,7 @@ jobs:
       - name: Tag must agree with PLUGIN_VERSION
         run: |
           tag="${GITHUB_REF_NAME#v}"
-          plugin=$(node -p "require('fs').readFileSync('layered_lock_alpha.js','utf8').match(/^const PLUGIN_VERSION = '([^']+)';/m)[1]")
+          plugin=$(node -p "require('fs').readFileSync('unleakylayers.js','utf8').match(/^const PLUGIN_VERSION = '([^']+)';/m)[1]")
           if [ "$tag" != "$plugin" ]; then
             echo "tag v$tag but the plugin says $plugin"
             exit 1
@@ -40,5 +40,5 @@ jobs:
           name: v${{ steps.version.outputs.version }}
           body_path: release-notes.md
           files: |
-            layered_lock_alpha.js
+            unleakylayers.js
             changelog.json

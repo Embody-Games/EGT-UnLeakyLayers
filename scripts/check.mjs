@@ -11,7 +11,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const PLUGIN = join(root, 'layered_lock_alpha.js');
+const PLUGIN_FILE = 'unleakylayers.js';
+const PLUGIN = join(root, PLUGIN_FILE);
 
 let failures = [];
 const check = (name, fn) => {
@@ -73,9 +74,13 @@ check('changelog versions are all semver and unique', () => {
 	for (const key of keys) assert(/^\d+\.\d+\.\d+$/.test(key), `${key} is not semver`);
 });
 
-check('plugin registers the expected id', () => {
+check('plugin id matches the filename', () => {
+	// Blockbench derives a file-loaded plugin's id from its filename and refuses to load
+	// when the two disagree, so this is the check that stops a rename from shipping broken.
 	assert(/BBPlugin\.register\(PLUGIN_ID,/.test(source), 'BBPlugin.register(PLUGIN_ID, ...) not found');
-	assert(/const PLUGIN_ID = 'layered_lock_alpha';/.test(source), 'PLUGIN_ID changed');
+	const id = (source.match(/^const PLUGIN_ID = '([^']+)';/m) || [])[1];
+	const expected = PLUGIN_FILE.replace(/\.js$/, '');
+	assert(id === expected, `PLUGIN_ID is '${id}' but the file is ${PLUGIN_FILE}, so Blockbench will refuse to load it`);
 });
 
 check('onload has a matching onunload', () => {

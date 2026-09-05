@@ -34,6 +34,12 @@ attached. `.github/workflows/checks.yml` runs the same checks on every push to `
 Pick the bump by what changed: `patch` for a fix with no new behaviour, `minor` for new
 behaviour or a new setting, `major` for a change that breaks how existing projects paint.
 
+**The filename and the plugin id are one thing.** Blockbench derives a file-loaded plugin's
+id from its filename and refuses to load when the two disagree, so `unleakylayers.js` must
+carry `const PLUGIN_ID = 'unleakylayers'`. `scripts/check.mjs` enforces it. Renaming either
+one is a user-visible change: Blockbench sees a different plugin, so people remove the old
+one and load the new file. Give it a `minor` bump and say so in the changelog.
+
 **Repo-only changes do not get a version.** README, CI, scripts, checks: plain commit, no
 bump, no tag, no changelog entry. The version is the plugin's, not the repo's.
 

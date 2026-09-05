@@ -23,7 +23,8 @@ import { dirname, join } from 'node:path';
 import { writeMarkdown, semverDesc } from './changelog.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const PLUGIN = join(root, 'layered_lock_alpha.js');
+const PLUGIN_FILE = 'unleakylayers.js';
+const PLUGIN = join(root, PLUGIN_FILE);
 const REPO = 'Embody-Games/EGT-UnLeakyLayers';
 const CATEGORY_ORDER = ['Added', 'Changed', 'Fixed', 'Removed', 'Safeguards'];
 
@@ -166,7 +167,7 @@ const sweepLocks = () => {
 };
 
 sweepLocks();
-run('git', ['add', 'layered_lock_alpha.js', 'package.json', 'changelog.json', 'CHANGELOG.md']);
+run('git', ['add', PLUGIN_FILE, 'package.json', 'changelog.json', 'CHANGELOG.md']);
 run('git', ['commit', '-m', `v${version}: ${title}`]);
 run('git', ['tag', '-a', `v${version}`, '-m', `v${version}: ${title}`]);
 sweepLocks();

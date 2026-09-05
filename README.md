@@ -24,7 +24,7 @@ reveals what is beneath it.
 
 Blockbench 4.10.0 or newer, in either variant (app or web).
 
-1. Download `layered_lock_alpha.js` from the [latest release](https://github.com/Embody-Games/EGT-UnLeakyLayers/releases/latest).
+1. Download `unleakylayers.js` from the [latest release](https://github.com/Embody-Games/EGT-UnLeakyLayers/releases/latest).
 2. In Blockbench, **File > Plugins > Load Plugin from File** and pick it.
 
 Then turn Lock Alpha Channel on as usual. The tooltip updates to describe the new behaviour.
@@ -42,7 +42,7 @@ Both live under **Settings > Paint**.
 
 | Path | What it is |
 | --- | --- |
-| `layered_lock_alpha.js` | The plugin. `const PLUGIN_VERSION` near the top is the only place the version lives. |
+| `unleakylayers.js` | The plugin. `const PLUGIN_VERSION` near the top is the only place the version lives. The filename must match `PLUGIN_ID`, Blockbench derives one from the other. |
 | `changelog.json` | Single source for the changelog. Blockbench's Changelog tab, `CHANGELOG.md` and the GitHub release body all render from it. |
 | `CHANGELOG.md` | Generated. Do not edit by hand. |
 | `scripts/check.mjs` | The checks that gate a release. |
