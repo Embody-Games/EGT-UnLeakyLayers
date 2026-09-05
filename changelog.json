@@ -1,4 +1,17 @@
 {
+  "1.2.1": {
+    "title": "UnLeaky Layers",
+    "date": "2026-09-05",
+    "author": "quinten.bench",
+    "categories": [
+      {
+        "title": "Changed",
+        "list": [
+          "The plugin now shows up as 'UnLeaky Layers' in Blockbench's plugin list, and the master toggle under Settings > Paint is named the same. v1.2.0 renamed the file and the id but left the displayed name behind."
+        ]
+      }
+    ]
+  },
   "1.2.0": {
     "title": "Renamed to UnLeakyLayers",
     "date": "2026-09-05",

@@ -2,6 +2,14 @@
 
 Generated from `changelog.json` by `scripts/changelog.mjs`. Edit that file, not this one.
 
+## v1.2.1 - UnLeaky Layers
+
+_2026-09-05_
+
+### Changed
+
+- The plugin now shows up as 'UnLeaky Layers' in Blockbench's plugin list, and the master toggle under Settings > Paint is named the same. v1.2.0 renamed the file and the id but left the displayed name behind.
+
 ## v1.2.0 - Renamed to UnLeakyLayers
 
 _2026-09-05_
