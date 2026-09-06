@@ -66,17 +66,35 @@ function packCategory(list) {
 
 const title = entry.title && entry.title !== version ? `${pluginName} v${version}: ${entry.title}` : `${pluginName} v${version}`;
 
+// The date goes in as plain text. An embed `timestamp` is rendered in each viewer's
+// own timezone, which turned a same-day release into "Yesterday at 2:00 PM".
+const author = entry.author || 'Embody Games';
+
+// The raw-on-main link, the same one the plugins are handed out with, so contractors
+// only ever see one URL per plugin. It always serves current main rather than the
+// version this post describes; PLUGIN_INSTALL_URL overrides it if that ever matters.
+const pluginFile = process.env.PLUGIN_FILE || '';
+const installUrl =
+	process.env.PLUGIN_INSTALL_URL ||
+	(repo && pluginFile ? `https://raw.githubusercontent.com/${repo}/main/${pluginFile}` : '');
+
 const embed = {
 	title: clamp(title, LIMIT.title),
 	url: releaseUrl,
 	color: parseInt(process.env.PLUGIN_COLOR || '5865F2', 16),
 	fields: [],
-	footer: { text: entry.author ? `${entry.author}` : 'Embody Games' },
-	timestamp: entry.date ? new Date(`${entry.date}T12:00:00Z`).toISOString() : undefined,
+	footer: { text: entry.date ? `${author} \u2022 ${entry.date}` : author },
 };
+
+// Shown as a bare URL, not a markdown link, because it gets pasted into
+// Blockbench's Install from URL box rather than clicked.
+const installField = installUrl
+	? { name: 'Install', value: `${installUrl}\nBlockbench > Plugins > Install from URL`, inline: false }
+	: null;
 
 // Budget: every character in the embed counts toward 6000, title and footer included.
 let budget = LIMIT.total - embed.title.length - (embed.footer.text?.length || 0);
+if (installField) budget -= installField.name.length + installField.value.length;
 let dropped = 0;
 
 for (const category of entry.categories || []) {
@@ -87,6 +105,8 @@ for (const category of entry.categories || []) {
 	budget -= name.length + value.length;
 	embed.fields.push({ name, value, inline: false });
 }
+
+if (installField) embed.fields.push(installField);
 
 if (dropped && releaseUrl) {
 	embed.description = `_${dropped} more section${dropped > 1 ? 's' : ''} in the [full release](${releaseUrl})._`;
