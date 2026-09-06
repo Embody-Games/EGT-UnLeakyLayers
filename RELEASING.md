@@ -31,6 +31,11 @@ checks, refuses if the tag disagrees with `PLUGIN_VERSION`, then publishes a Git
 whose body is that version's `changelog.json` entry, with the plugin and `changelog.json`
 attached. `.github/workflows/checks.yml` runs the same checks on every push to `main`.
 
+Once the release exists, the same workflow posts that version's changelog entry to the
+`#addons` forum thread in Discord. There is no bot: it is one HTTP POST to a webhook and
+then the workflow exits. The step is `continue-on-error`, so a Discord outage cannot fail
+an otherwise good release. `CLAUDE.md` covers the configuration.
+
 Pick the bump by what changed: `patch` for a fix with no new behaviour, `minor` for new
 behaviour or a new setting, `major` for a change that breaks how existing projects paint.
 
