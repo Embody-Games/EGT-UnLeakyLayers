@@ -44,13 +44,14 @@
 
 // Must match the filename: unleakylayers.js
 const PLUGIN_ID = 'unleakylayers';
-const PLUGIN_VERSION = '1.2.1';   // single source of truth, bumped by scripts/release.mjs
+const PLUGIN_VERSION = '1.3.0';   // single source of truth, bumped by scripts/release.mjs
 const LOG = '[UnLeaky Layers]';
 
 const MUTATORS = ['fill', 'fillRect', 'stroke', 'strokeRect', 'clearRect', 'drawImage'];
 
 let originals = {};
 let added_settings = [];
+let toolbar_toggle = null;   // the Layer-Aware Alpha Lock button in the paint toolbar
 let original_lock_alpha_description = null;
 
 // Per-stroke caches
@@ -324,6 +325,31 @@ function shouldHandle(texture) {
 	return true;
 }
 
+// ---------------------------------------------------------------- toolbar
+
+/**
+ * Put the toggle in the paint toolbar, directly after Lock Alpha.
+ *
+ * Blockbench stores a customised toolbar as a list of bar item ids, and an id it cannot
+ * resolve while building the toolbar is parked in Toolbar#postload until whatever owns it
+ * registers. update(true) drains that list, so a button the user has since moved or removed
+ * keeps their arrangement; the insert below only runs the first time, before anything is
+ * stored. The `true` matters: update() returns early without touching postload while the
+ * toolbar is hidden, which it is whenever the plugin loads outside paint mode.
+ */
+function placeToggleInToolbar(toggle) {
+	let bar = typeof Toolbars != 'undefined' && Toolbars.brush;
+	if (!bar || !Array.isArray(bar.children)) return;
+	try {
+		bar.update(true);
+	} catch (error) {
+		// A stored position could not be restored, so fall through and place it by hand.
+	}
+	if (bar.children.includes(toggle)) return;
+	let lock_alpha_at = bar.children.indexOf(BarItems.lock_alpha);
+	bar.add(toggle, lock_alpha_at === -1 ? undefined : lock_alpha_at + 1);
+}
+
 // ---------------------------------------------------------------- plugin
 
 BBPlugin.register(PLUGIN_ID, {
@@ -341,7 +367,7 @@ BBPlugin.register(PLUGIN_ID, {
 		added_settings.push(new Setting('lla_enabled', {
 			category: 'paint',
 			value: true,
-			name: 'UnLeaky Layers',
+			name: 'Layer-Aware Alpha Lock',
 			description: 'Lock Alpha Channel locks a pixel only when it is fully transparent on every layer, instead of only on the layer being painted.'
 		}));
 		added_settings.push(new Setting('lla_clamp', {
@@ -362,6 +388,29 @@ BBPlugin.register(PLUGIN_ID, {
 			name: 'Count hidden layers',
 			description: 'Also treat hidden layers and layers at 0% opacity as paintable area when deciding what Lock Alpha locks.'
 		}));
+
+		// A button beside Lock Alpha, so the mode can be flipped while painting instead of
+		// through the settings dialog. linked_setting keeps the two in step both ways: a click
+		// writes lla_enabled and saves it, and Blockbench's settings dialog writes back to any
+		// Toggle pointing at the setting it just changed. Name and description have to be given
+		// explicitly - a linked Toggle otherwise looks them up as translation keys, which a
+		// plugin's own setting does not have.
+		try {
+			let ToggleClass = typeof Toggle != 'undefined' ? Toggle : (typeof Blockbench != 'undefined' && Blockbench.Toggle);
+			if (ToggleClass) {
+				toolbar_toggle = new ToggleClass('lla_toggle', {
+					name: 'Layer-Aware Alpha Lock',
+					description: 'Lock Alpha Channel counts a pixel as paintable when any layer is visible there, not just the layer being painted on. Off leaves Lock Alpha behaving like vanilla Blockbench.',
+					icon: 'layers',
+					category: 'paint',
+					condition: () => Modes.paint,
+					linked_setting: 'lla_enabled'
+				});
+				placeToggleInToolbar(toolbar_toggle);
+			}
+		} catch (error) {
+			console.error(LOG, 'could not add the toolbar button', error);
+		}
 
 		originals.edit = Painter.edit;
 		Painter.edit = function (texture, callback, options) {
@@ -419,6 +468,12 @@ BBPlugin.register(PLUGIN_ID, {
 	},
 
 	onunload() {
+		if (toolbar_toggle) {
+			// Takes it out of the toolbar and the keybind list as well.
+			try { toolbar_toggle.delete(); } catch (error) { console.error(LOG, error); }
+			toolbar_toggle = null;
+		}
+
 		if (originals.edit) Painter.edit = originals.edit;
 		if (originals.startPaintTool) Painter.startPaintTool = originals.startPaintTool;
 		if (originals.stopPaintTool) Painter.stopPaintTool = originals.stopPaintTool;

@@ -2,6 +2,18 @@
 
 Generated from `changelog.json` by `scripts/changelog.mjs`. Edit that file, not this one.
 
+## v1.3.0 - Layer-Aware Alpha Lock button
+
+_2026-09-08_
+
+### Added
+
+- A Layer-Aware Alpha Lock button next to Lock Alpha in the paint toolbar, so you can switch between locking against the layer you are painting on and locking against all of them without opening settings.
+
+### Changed
+
+- The setting called UnLeaky Layers is now called Layer-Aware Alpha Lock, to match the new button. It is the same switch and your choice is kept.
+
 ## v1.2.1 - UnLeaky Layers
 
 _2026-09-05_

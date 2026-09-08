@@ -1,4 +1,23 @@
 {
+  "1.3.0": {
+    "title": "Layer-Aware Alpha Lock button",
+    "date": "2026-09-08",
+    "author": "quinten.bench",
+    "categories": [
+      {
+        "title": "Added",
+        "list": [
+          "A Layer-Aware Alpha Lock button next to Lock Alpha in the paint toolbar, so you can switch between locking against the layer you are painting on and locking against all of them without opening settings."
+        ]
+      },
+      {
+        "title": "Changed",
+        "list": [
+          "The setting called UnLeaky Layers is now called Layer-Aware Alpha Lock, to match the new button. It is the same switch and your choice is kept."
+        ]
+      }
+    ]
+  },
   "1.2.1": {
     "title": "UnLeaky Layers",
     "date": "2026-09-05",

@@ -1,6 +1,6 @@
 {
   "name": "egt-unleakylayers",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "private": true,
   "description": "UnLeaky Layers - a Blockbench plugin that makes Lock Alpha Channel respect every layer",
   "type": "module",
