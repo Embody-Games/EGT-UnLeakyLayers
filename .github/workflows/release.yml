@@ -38,7 +38,9 @@ jobs:
         id: version
         run: |
           tag="${GITHUB_REF_NAME#v}"
-          plugin="$(sed -n "s/^const PLUGIN_VERSION = '\(.*\)';$/\1/p" "$PLUGIN_FILE")"
+          # The version line carries a trailing comment, so this must not anchor at end
+          # of line. Anchoring it there read an empty version and failed the release.
+          plugin="$(sed -n "s/^const PLUGIN_VERSION = '\([^']*\)';.*$/\1/p" "$PLUGIN_FILE")"
           if [ -z "$plugin" ]; then
             echo "could not read PLUGIN_VERSION out of $PLUGIN_FILE"
             exit 1
