@@ -254,10 +254,10 @@ function runIntercepted(layer, mask, run) {
 	let native_get = proto.getImageData;
 	let native_put = proto.putImageData;
 
-	let baseline = getStrokeBaseline(layer);
-	let allow_decrease = alphaDecreaseAlwaysAllowed();
-	let full_before = baseline || null;
-	let needs_full = !!baseline;
+	let baseline = null;
+	let allow_decrease = false;
+	let full_before = null;
+	let needs_full = false;
 	let hooked = [];
 
 	function snapshotFull() {
@@ -270,32 +270,42 @@ function runIntercepted(layer, mask, run) {
 		}
 	}
 
-	// Brush-like tools mutate through putImageData on a small region - reconcile there
-	// instead of scanning the whole layer on every dab. Tools that redraw from a
-	// stroke baseline are handled by the single full pass below.
-	if (!baseline) {
-		ctx.putImageData = function (imagedata, dx, dy) {
-			try {
-				let region_before = native_get.call(ctx, dx, dy, imagedata.width, imagedata.height).data;
-				reconcile(imagedata.data, region_before, dx, dy, imagedata.width, imagedata.height, layer, mask, allow_decrease);
-			} catch (error) {
-				console.error(LOG, 'region reconcile failed', error);
-			}
-			return native_put.apply(this, arguments);
-		};
-		hooked.push('putImageData');
-	}
-
-	for (let name of MUTATORS) {
-		let native = proto[name];
-		ctx[name] = function () {
-			snapshotFull();
-			return native.apply(this, arguments);
-		};
-		hooked.push(name);
-	}
-
+	// Setting up is inside the try along with the stroke itself, so that a throw while
+	// reading the baseline or installing the hooks still reaches the finally. It used to
+	// sit outside, and a throw there left this context in `intercepting` for good: every
+	// later stroke on the layer took the early exit above and skipped the reconcile, so
+	// Lock Alpha went quietly inert on it until the plugin was reloaded.
 	try {
+		baseline = getStrokeBaseline(layer);
+		allow_decrease = alphaDecreaseAlwaysAllowed();
+		full_before = baseline || null;
+		needs_full = !!baseline;
+
+		// Brush-like tools mutate through putImageData on a small region - reconcile there
+		// instead of scanning the whole layer on every dab. Tools that redraw from a
+		// stroke baseline are handled by the single full pass below.
+		if (!baseline) {
+			ctx.putImageData = function (imagedata, dx, dy) {
+				try {
+					let region_before = native_get.call(ctx, dx, dy, imagedata.width, imagedata.height).data;
+					reconcile(imagedata.data, region_before, dx, dy, imagedata.width, imagedata.height, layer, mask, allow_decrease);
+				} catch (error) {
+					console.error(LOG, 'region reconcile failed', error);
+				}
+				return native_put.apply(this, arguments);
+			};
+			hooked.push('putImageData');
+		}
+
+		for (let name of MUTATORS) {
+			let native = proto[name];
+			ctx[name] = function () {
+				snapshotFull();
+				return native.apply(this, arguments);
+			};
+			hooked.push(name);
+		}
+
 		run();
 	} finally {
 		for (let name of hooked) delete ctx[name];
