@@ -2,6 +2,14 @@
 
 Generated from `changelog.json` by `scripts/changelog.mjs`. Edit that file, not this one.
 
+## v1.3.2 - Brush painting stays fast
+
+_2026-09-09_
+
+### Fixed
+
+- Using the Shape or Gradient tool once made every brush stroke after it slower, for the rest of the session: each dab re-checked the whole layer instead of just the area under the brush, and checked it against the shape stroke rather than the current pixels. On a partly transparent layer that also let alpha creep down as you painted. Brush strokes now do the small per-dab check they were meant to, whatever you used before them.
+
 ## v1.3.1 - Lock Alpha stays layer aware
 
 _2026-09-09_
