@@ -49,6 +49,9 @@ const LOG = '[UnLeaky Layers]';
 
 const MUTATORS = ['fill', 'fillRect', 'stroke', 'strokeRect', 'clearRect', 'drawImage'];
 
+// The only two tools Blockbench builds a Painter.current.clear for. See getStrokeBaseline.
+const CLEAR_TOOLS = ['draw_shape_tool', 'gradient_tool'];
+
 let originals = {};
 let added_settings = [];
 let toolbar_toggle = null;   // the Layer-Aware Alpha Lock button in the paint toolbar
@@ -58,6 +61,7 @@ let original_lock_alpha_description = null;
 let stroke_active = false;
 let stroke_masks = new Map();   // texture uuid -> {width, height, alpha: Uint8Array}
 let baseline_cache = null;      // {canvas, data: ImageData} for shape / gradient tools
+let stroke_uses_clear = false;  // this stroke is one Blockbench keeps a Painter.current.clear for
 let intercepting = new Set();   // re-entrancy guard, keyed by canvas context
 
 // ---------------------------------------------------------------- settings
@@ -143,8 +147,23 @@ function getMask(texture, active_layer) {
  * The shape and gradient tools rebuild the layer from Painter.current.clear on every
  * pointer move, so the correct "before" state for them is the start of the stroke -
  * not whatever the previous frame left behind.
+ *
+ * Only for those two, and that has to be decided from the tool rather than from whether
+ * Painter.current.clear happens to be there. Blockbench creates that canvas in the
+ * draw_shape_tool / gradient_tool branch of startPaintTool, and stopPaintTool does not
+ * delete it: it deletes nine other Painter.current keys and leaves `clear` behind. So
+ * after one shape or gradient stroke it sits there for the rest of the session.
+ *
+ * Trusting it, with only a size check, sent every later brush stroke down the wrong
+ * path: the whole-layer reconcile instead of the per-dab one, on every mouse move, and
+ * against a "before" from a stroke that ended minutes ago. Brush painting got slower the
+ * longer the session ran, and alpha crept down on a partly transparent layer.
+ *
+ * stroke_uses_clear is set in the startPaintTool wrapper from the same Toolbox.selected
+ * core is about to read, so the two always agree on what kind of stroke this is.
  */
 function getStrokeBaseline(layer) {
+	if (!stroke_uses_clear) return null;
 	let clear = Painter.current && Painter.current.clear;
 	if (!clear || !clear.width) return null;
 	if (clear.width !== layer.canvas.width || clear.height !== layer.canvas.height) return null;
@@ -452,6 +471,8 @@ BBPlugin.register(PLUGIN_ID, {
 			stroke_masks.clear();
 			baseline_cache = null;
 			stroke_active = true;
+			stroke_uses_clear = !!(typeof Toolbox !== 'undefined' && Toolbox.selected
+				&& CLEAR_TOOLS.includes(Toolbox.selected.id));
 			return originals.startPaintTool.apply(this, arguments);
 		};
 
@@ -461,6 +482,7 @@ BBPlugin.register(PLUGIN_ID, {
 				return originals.stopPaintTool.apply(this, arguments);
 			} finally {
 				stroke_active = false;
+				stroke_uses_clear = false;
 				stroke_masks.clear();
 				baseline_cache = null;
 			}
@@ -505,6 +527,7 @@ BBPlugin.register(PLUGIN_ID, {
 		baseline_cache = null;
 		intercepting.clear();
 		stroke_active = false;
+		stroke_uses_clear = false;
 	}
 });
 
