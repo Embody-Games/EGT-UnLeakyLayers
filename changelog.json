@@ -1,4 +1,17 @@
 {
+  "1.3.1": {
+    "title": "Lock Alpha stays layer aware",
+    "date": "2026-09-09",
+    "author": "quinten.bench",
+    "categories": [
+      {
+        "title": "Fixed",
+        "list": [
+          "Lock Alpha could quietly stop being layer aware on a layer for the rest of the session. If anything went wrong while a stroke was starting, that layer was left marked as busy and every later stroke on it skipped the layer-aware check without saying anything. Reloading the plugin was the only way to clear it."
+        ]
+      }
+    ]
+  },
   "1.3.0": {
     "title": "Layer-Aware Alpha Lock button",
     "date": "2026-09-08",

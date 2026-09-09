@@ -2,6 +2,14 @@
 
 Generated from `changelog.json` by `scripts/changelog.mjs`. Edit that file, not this one.
 
+## v1.3.1 - Lock Alpha stays layer aware
+
+_2026-09-09_
+
+### Fixed
+
+- Lock Alpha could quietly stop being layer aware on a layer for the rest of the session. If anything went wrong while a stroke was starting, that layer was left marked as busy and every later stroke on it skipped the layer-aware check without saying anything. Reloading the plugin was the only way to clear it.
+
 ## v1.3.0 - Layer-Aware Alpha Lock button
 
 _2026-09-08_

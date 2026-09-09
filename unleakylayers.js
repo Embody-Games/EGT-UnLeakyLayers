@@ -44,7 +44,7 @@
 
 // Must match the filename: unleakylayers.js
 const PLUGIN_ID = 'unleakylayers';
-const PLUGIN_VERSION = '1.3.0';   // single source of truth, bumped by scripts/release.mjs
+const PLUGIN_VERSION = '1.3.1';   // single source of truth, bumped by scripts/release.mjs
 const LOG = '[UnLeaky Layers]';
 
 const MUTATORS = ['fill', 'fillRect', 'stroke', 'strokeRect', 'clearRect', 'drawImage'];
